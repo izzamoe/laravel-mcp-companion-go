@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: amd64
+          - os: ubuntu-latest
+            arch: arm64
+          - os: macos-latest
+            arch: amd64
+          - os: macos-latest
+            arch: arm64
+          - os: windows-latest
+            arch: amd64
+        go-version: [1.24]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Run tests
+      run: go test ./...
+
+    - name: Build binary
+      run: |
+        GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }} GOARCH=${{ matrix.arch }} go build -o laravel-mcp-companion-go${{ matrix.os == 'windows-latest' && '.exe' || '' }} cmd/server/main.go
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./laravel-mcp-companion-go${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+        asset_name: laravel-mcp-companion-go-${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }}-${{ matrix.arch }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+        asset_content_type: application/octet-stream

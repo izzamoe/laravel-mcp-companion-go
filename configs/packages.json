@@ -1,0 +1,264 @@
+{
+  "categories": {
+    "Authentication & Authorization": {
+      "description": "Packages for user authentication, authorization, and access control",
+      "packages": [
+        {
+          "name": "laravel/sanctum",
+          "description": "Laravel Sanctum provides a featherweight authentication system for SPAs and simple APIs",
+          "composer_name": "laravel/sanctum",
+          "use_case": ["SPA authentication", "API tokens", "mobile app auth"],
+          "alternatives": ["laravel/passport", "tymon/jwt-auth"],
+          "min_laravel_version": "8.0",
+          "tags": ["authentication", "api", "spa", "official"],
+          "popularity_score": 95,
+          "maintained": true
+        },
+        {
+          "name": "laravel/passport",
+          "description": "Full OAuth2 server implementation for API authentication",
+          "composer_name": "laravel/passport",
+          "use_case": ["OAuth2 server", "third-party API access", "complex auth flows"],
+          "alternatives": ["laravel/sanctum", "tymon/jwt-auth"],
+          "min_laravel_version": "8.0",
+          "tags": ["authentication", "oauth2", "api", "official"],
+          "popularity_score": 90,
+          "maintained": true
+        },
+        {
+          "name": "spatie/laravel-permission",
+          "description": "Associate users with roles and permissions",
+          "composer_name": "spatie/laravel-permission",
+          "use_case": ["role management", "permission system", "access control"],
+          "alternatives": ["santigarcor/laratrust", "zizaco/entrust"],
+          "min_laravel_version": "8.0",
+          "tags": ["authorization", "roles", "permissions", "popular"],
+          "popularity_score": 92,
+          "maintained": true
+        }
+      ]
+    },
+    "API Development": {
+      "description": "Tools for building and documenting REST and GraphQL APIs",
+      "packages": [
+        {
+          "name": "laravel/sanctum",
+          "description": "Simple API authentication",
+          "composer_name": "laravel/sanctum",
+          "use_case": ["api authentication", "token management"],
+          "alternatives": ["laravel/passport"],
+          "min_laravel_version": "8.0",
+          "tags": ["api", "authentication", "official"],
+          "popularity_score": 95,
+          "maintained": true
+        },
+        {
+          "name": "spatie/laravel-query-builder",
+          "description": "Build Eloquent queries from API requests",
+          "composer_name": "spatie/laravel-query-builder",
+          "use_case": ["filtering", "sorting", "includes", "api queries"],
+          "alternatives": ["appstract/laravel-query-filter"],
+          "min_laravel_version": "8.0",
+          "tags": ["api", "query", "filter", "popular"],
+          "popularity_score": 88,
+          "maintained": true
+        },
+        {
+          "name": "knuckleswtf/scribe",
+          "description": "Generate API documentation from Laravel routes",
+          "composer_name": "knuckleswtf/scribe",
+          "use_case": ["api documentation", "openapi", "postman collections"],
+          "alternatives": ["darkaonline/l5-swagger", "mpociot/laravel-apidoc-generator"],
+          "min_laravel_version": "8.0",
+          "tags": ["documentation", "api", "openapi"],
+          "popularity_score": 85,
+          "maintained": true
+        }
+      ]
+    },
+    "Database & Eloquent": {
+      "description": "Enhance database operations and Eloquent ORM functionality",
+      "packages": [
+        {
+          "name": "staudenmeir/eloquent-has-many-deep",
+          "description": "Define deep relationships in Eloquent",
+          "composer_name": "staudenmeir/eloquent-has-many-deep",
+          "use_case": ["nested relationships", "complex queries", "eloquent extensions"],
+          "alternatives": ["znck/belongs-to-through"],
+          "min_laravel_version": "8.0",
+          "tags": ["eloquent", "relationships", "database"],
+          "popularity_score": 75,
+          "maintained": true
+        },
+        {
+          "name": "barryvdh/laravel-debugbar",
+          "description": "Debug bar with database queries, timeline, and more",
+          "composer_name": "barryvdh/laravel-debugbar",
+          "use_case": ["debugging", "query analysis", "performance monitoring"],
+          "alternatives": ["laravel/telescope"],
+          "min_laravel_version": "8.0",
+          "tags": ["debugging", "development", "popular"],
+          "popularity_score": 93,
+          "maintained": true
+        },
+        {
+          "name": "spatie/laravel-backup",
+          "description": "Backup your application's database and files",
+          "composer_name": "spatie/laravel-backup",
+          "use_case": ["database backup", "file backup", "scheduled backups"],
+          "alternatives": ["backup-manager/laravel"],
+          "min_laravel_version": "8.0",
+          "tags": ["backup", "database", "maintenance", "popular"],
+          "popularity_score": 90,
+          "maintained": true
+        }
+      ]
+    },
+    "Media & File Management": {
+      "description": "Handle file uploads, image processing, and media management",
+      "packages": [
+        {
+          "name": "spatie/laravel-medialibrary",
+          "description": "Associate files with Eloquent models",
+          "composer_name": "spatie/laravel-medialibrary",
+          "use_case": ["file uploads", "image management", "media collections"],
+          "alternatives": ["plank/laravel-mediable"],
+          "min_laravel_version": "8.0",
+          "tags": ["media", "files", "images", "popular"],
+          "popularity_score": 91,
+          "maintained": true
+        },
+        {
+          "name": "intervention/image",
+          "description": "Image handling and manipulation library",
+          "composer_name": "intervention/image",
+          "use_case": ["image resize", "image cropping", "watermarks", "filters"],
+          "alternatives": ["imagine/imagine"],
+          "min_laravel_version": "8.0",
+          "tags": ["images", "manipulation", "popular"],
+          "popularity_score": 89,
+          "maintained": true
+        }
+      ]
+    },
+    "Frontend & UI": {
+      "description": "Frontend scaffolding, UI components, and asset management",
+      "packages": [
+        {
+          "name": "laravel/breeze",
+          "description": "Minimal, simple authentication scaffolding",
+          "composer_name": "laravel/breeze",
+          "use_case": ["authentication ui", "starter kit", "simple apps"],
+          "alternatives": ["laravel/jetstream", "laravel/ui"],
+          "min_laravel_version": "8.0",
+          "tags": ["starter-kit", "authentication", "ui", "official"],
+          "popularity_score": 87,
+          "maintained": true
+        },
+        {
+          "name": "laravel/jetstream",
+          "description": "Robust authentication scaffolding with teams and API support",
+          "composer_name": "laravel/jetstream",
+          "use_case": ["complete auth ui", "teams", "api tokens", "profile management"],
+          "alternatives": ["laravel/breeze", "laravel/fortify"],
+          "min_laravel_version": "8.0",
+          "tags": ["starter-kit", "authentication", "teams", "official"],
+          "popularity_score": 85,
+          "maintained": true
+        },
+        {
+          "name": "livewire/livewire",
+          "description": "Build dynamic interfaces without leaving PHP",
+          "composer_name": "livewire/livewire",
+          "use_case": ["reactive components", "spa-like experience", "real-time updates"],
+          "alternatives": ["inertiajs/inertia-laravel", "hotwired/turbo-laravel"],
+          "min_laravel_version": "8.0",
+          "tags": ["frontend", "reactive", "popular", "official"],
+          "popularity_score": 94,
+          "maintained": true
+        }
+      ]
+    },
+    "Testing": {
+      "description": "Tools for testing Laravel applications",
+      "packages": [
+        {
+          "name": "pestphp/pest",
+          "description": "Elegant testing framework with a focus on simplicity",
+          "composer_name": "pestphp/pest",
+          "use_case": ["unit testing", "feature testing", "elegant syntax"],
+          "alternatives": ["phpunit/phpunit"],
+          "min_laravel_version": "8.0",
+          "tags": ["testing", "tdd", "popular"],
+          "popularity_score": 88,
+          "maintained": true
+        },
+        {
+          "name": "laravel/dusk",
+          "description": "Browser automation and testing",
+          "composer_name": "laravel/dusk",
+          "use_case": ["browser testing", "e2e testing", "javascript testing"],
+          "alternatives": ["symfony/panther"],
+          "min_laravel_version": "8.0",
+          "tags": ["testing", "browser", "e2e", "official"],
+          "popularity_score": 86,
+          "maintained": true
+        }
+      ]
+    },
+    "Developer Tools": {
+      "description": "Development and debugging utilities",
+      "packages": [
+        {
+          "name": "laravel/telescope",
+          "description": "Debug assistant for Laravel applications",
+          "composer_name": "laravel/telescope",
+          "use_case": ["debugging", "monitoring", "profiling", "logging"],
+          "alternatives": ["barryvdh/laravel-debugbar"],
+          "min_laravel_version": "8.0",
+          "tags": ["debugging", "monitoring", "official"],
+          "popularity_score": 92,
+          "maintained": true
+        },
+        {
+          "name": "laravel/pint",
+          "description": "Opinionated PHP code style fixer",
+          "composer_name": "laravel/pint",
+          "use_case": ["code style", "formatting", "linting"],
+          "alternatives": ["friendsofphp/php-cs-fixer"],
+          "min_laravel_version": "8.0",
+          "tags": ["code-style", "formatting", "official"],
+          "popularity_score": 84,
+          "maintained": true
+        }
+      ]
+    },
+    "Performance": {
+      "description": "Caching, optimization, and performance enhancement",
+      "packages": [
+        {
+          "name": "spatie/laravel-responsecache",
+          "description": "Cache entire responses for faster performance",
+          "composer_name": "spatie/laravel-responsecache",
+          "use_case": ["response caching", "performance optimization", "cdn"],
+          "alternatives": ["silber/page-cache"],
+          "min_laravel_version": "8.0",
+          "tags": ["cache", "performance", "optimization"],
+          "popularity_score": 78,
+          "maintained": true
+        },
+        {
+          "name": "laravel/octane",
+          "description": "Supercharge application performance using Swoole and RoadRunner",
+          "composer_name": "laravel/octane",
+          "use_case": ["high performance", "concurrent requests", "production optimization"],
+          "alternatives": [],
+          "min_laravel_version": "8.0",
+          "tags": ["performance", "swoole", "roadrunner", "official"],
+          "popularity_score": 89,
+          "maintained": true
+        }
+      ]
+    }
+  }
+}
