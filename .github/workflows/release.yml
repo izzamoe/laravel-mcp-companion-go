@@ -11,32 +11,40 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            arch: amd64
+            goos: linux
+            goarch: amd64
           - os: ubuntu-latest
-            arch: arm64
+            goos: linux
+            goarch: arm64
           - os: macos-latest
-            arch: amd64
+            goos: darwin
+            goarch: amd64
           - os: macos-latest
-            arch: arm64
+            goos: darwin
+            goarch: arm64
           - os: windows-latest
-            arch: amd64
-        go-version: [1.24]
+            goos: windows
+            goarch: amd64
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
-        go-version: ${{ matrix.go-version }}
-
-    - name: Run tests
-      run: go test ./...
+        go-version: '1.23'
 
     - name: Build binary
+      shell: bash
       run: |
-        GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }} GOARCH=${{ matrix.arch }} go build -o laravel-mcp-companion-go${{ matrix.os == 'windows-latest' && '.exe' || '' }} cmd/server/main.go
+        export GOOS=${{ matrix.goos }}
+        export GOARCH=${{ matrix.goarch }}
+        if [ "${{ matrix.goos }}" == "windows" ]; then
+          go build -o laravel-mcp-companion-go.exe cmd/server/main.go
+        else
+          go build -o laravel-mcp-companion-go cmd/server/main.go
+        fi
 
     - name: Upload release asset
       uses: actions/upload-release-asset@v1
@@ -44,6 +52,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./laravel-mcp-companion-go${{ matrix.os == 'windows-latest' && '.exe' || '' }}
-        asset_name: laravel-mcp-companion-go-${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }}-${{ matrix.arch }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+        asset_path: ./laravel-mcp-companion-go${{ matrix.goos == 'windows' && '.exe' || '' }}
+        asset_name: laravel-mcp-companion-go-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goos == 'windows' && '.exe' || '' }}
         asset_content_type: application/octet-stream
