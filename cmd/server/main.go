@@ -61,18 +61,22 @@ func main() {
 		logging.Error("Failed to register doc tools: %v", err)
 		os.Exit(1)
 	}
-	logging.Info("Registered documentation tools (3 tools)")
+	logging.Info("Registered documentation tools (6 tools)")
 
 	// Register package tools
 	srv.RegisterPackageTools(catalog)
 	logging.Info("Registered package tools (4 tools)")
 
-	// Register external tools (update & scraping)
+	// Register external tools (update & info)
 	srv.RegisterExternalTools(upd, scraper)
-	logging.Info("Registered external tools (2 tools)")
+	logging.Info("Registered update and info tools (2 tools)")
+
+	// Register external service tools
+	srv.RegisterExternalServiceTools(scraper)
+	logging.Info("Registered external service tools (4 tools)")
 
 	// Start the server (blocking call)
-	logging.Info("Server ready with 9 total tools, starting event loop...")
+	logging.Info("Server ready with 16 total tools, starting event loop...")
 
 	// Start the MCP server over stdio
 	if err := mcpserver.ServeStdio(srv.GetMCPServer()); err != nil {

@@ -28,11 +28,11 @@ var levelNames = map[Level]string{
 
 // Logger provides structured logging
 type Logger struct {
-	mu       sync.Mutex
-	output   io.Writer
-	level    Level
-	prefix   string
-	flags    int
+	mu     sync.Mutex
+	output io.Writer
+	level  Level
+	prefix string
+	flags  int
 }
 
 // Global default logger

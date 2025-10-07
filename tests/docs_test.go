@@ -114,9 +114,9 @@ func TestManager_SearchDocs(t *testing.T) {
 
 // Helper function
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && 
-		(s == substr || s[0:len(substr)] == substr || 
-		 len(s) > len(substr) && findInString(s, substr))
+	return len(s) >= len(substr) &&
+		(s == substr || s[0:len(substr)] == substr ||
+			len(s) > len(substr) && findInString(s, substr))
 }
 
 func findInString(s, substr string) bool {

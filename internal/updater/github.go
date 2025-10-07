@@ -87,14 +87,14 @@ func (u *GitHubUpdater) UpdateDocs(version string) (string, error) {
 		return "", fmt.Errorf("failed to save metadata: %w", err)
 	}
 
-	return fmt.Sprintf("Successfully updated %s documentation: %d files downloaded (commit: %s)", 
+	return fmt.Sprintf("Successfully updated %s documentation: %d files downloaded (commit: %s)",
 		version, downloadedCount, commitSHA[:7]), nil
 }
 
 // getLatestCommitSHA fetches the latest commit SHA for a branch
 func (u *GitHubUpdater) getLatestCommitSHA(version string) (string, error) {
 	url := fmt.Sprintf("%s/repos/%s/commits/%s", githubAPIBase, docsRepo, version)
-	
+
 	resp, err := u.doRequest(url)
 	if err != nil {
 		return "", err
@@ -115,7 +115,7 @@ func (u *GitHubUpdater) getLatestCommitSHA(version string) (string, error) {
 // getMarkdownFiles fetches list of markdown files in the docs repo
 func (u *GitHubUpdater) getMarkdownFiles(version, commitSHA string) ([]string, error) {
 	url := fmt.Sprintf("%s/repos/%s/git/trees/%s", githubAPIBase, docsRepo, commitSHA)
-	
+
 	resp, err := u.doRequest(url)
 	if err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func (u *GitHubUpdater) getMarkdownFiles(version, commitSHA string) ([]string, e
 func (u *GitHubUpdater) downloadFile(version, filename, destPath string) error {
 	// Raw content URL
 	url := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s", docsRepo, version, filename)
-	
+
 	resp, err := u.doRequest(url)
 	if err != nil {
 		return err

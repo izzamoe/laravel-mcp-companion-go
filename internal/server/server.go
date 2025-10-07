@@ -17,6 +17,7 @@ func NewServer(docManager *docs.Manager) *Server {
 		"Laravel MCP Companion",
 		"1.0.0",
 		server.WithInstructions("Laravel documentation and package recommendations for AI assistants"),
+		server.WithToolCapabilities(true), // Enable tool listing notifications
 	)
 
 	return &Server{

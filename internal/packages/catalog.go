@@ -227,3 +227,27 @@ func (c *Catalog) GetPackage(composerName string) (*models.Package, error) {
 
 	return nil, fmt.Errorf("package not found: %s", composerName)
 }
+
+// GetFeatures returns common implementation features for a package
+func (c *Catalog) GetFeatures(packageName string) []string {
+	// Get package
+	pkg, err := c.GetPackage(packageName)
+	if err != nil {
+		return []string{}
+	}
+
+	// Features are derived from use cases and tags
+	features := make([]string, 0)
+
+	// Add use cases as features
+	for _, uc := range pkg.UseCase {
+		features = append(features, uc)
+	}
+
+	// Add relevant tags as features
+	for _, tag := range pkg.Tags {
+		features = append(features, tag)
+	}
+
+	return features
+}

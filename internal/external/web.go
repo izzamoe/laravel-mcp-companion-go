@@ -95,13 +95,13 @@ func (w *WebScraper) FetchResource(urlStr string) (string, error) {
 func (w *WebScraper) extractMainContent(html string) string {
 	// Simple heuristic: remove script and style tags
 	result := html
-	
+
 	// Remove script tags
 	result = removeTagsWithContent(result, "<script", "</script>")
-	
+
 	// Remove style tags
 	result = removeTagsWithContent(result, "<style", "</style>")
-	
+
 	// Remove excessive whitespace
 	lines := strings.Split(result, "\n")
 	var cleanLines []string
@@ -111,7 +111,7 @@ func (w *WebScraper) extractMainContent(html string) string {
 			cleanLines = append(cleanLines, trimmed)
 		}
 	}
-	
+
 	return strings.Join(cleanLines, "\n")
 }
 
@@ -123,12 +123,12 @@ func removeTagsWithContent(text, startTag, endTag string) string {
 		if startIdx == -1 {
 			break
 		}
-		
+
 		endIdx := strings.Index(result[startIdx:], endTag)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		// Remove from start tag to end of end tag
 		result = result[:startIdx] + result[startIdx+endIdx+len(endTag):]
 	}
@@ -138,12 +138,12 @@ func removeTagsWithContent(text, startTag, endTag string) string {
 // FormatResource formats fetched content for display
 func (w *WebScraper) FormatResource(url, content string) string {
 	var result strings.Builder
-	
+
 	result.WriteString(fmt.Sprintf("# External Resource\n\n"))
 	result.WriteString(fmt.Sprintf("**URL:** %s\n\n", url))
 	result.WriteString(fmt.Sprintf("**Content Length:** %d bytes\n\n", len(content)))
 	result.WriteString("---\n\n")
 	result.WriteString(content)
-	
+
 	return result.String()
 }

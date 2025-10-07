@@ -10,27 +10,27 @@ type ErrorCode string
 
 const (
 	// Documentation errors
-	ErrDocNotFound      ErrorCode = "DOC_NOT_FOUND"
-	ErrDocInvalid       ErrorCode = "DOC_INVALID"
+	ErrDocNotFound        ErrorCode = "DOC_NOT_FOUND"
+	ErrDocInvalid         ErrorCode = "DOC_INVALID"
 	ErrDocVersionNotFound ErrorCode = "DOC_VERSION_NOT_FOUND"
-	
+
 	// Package errors
 	ErrPackageNotFound  ErrorCode = "PACKAGE_NOT_FOUND"
 	ErrCategoryNotFound ErrorCode = "CATEGORY_NOT_FOUND"
 	ErrCatalogInvalid   ErrorCode = "CATALOG_INVALID"
-	
+
 	// Update errors
-	ErrUpdateFailed     ErrorCode = "UPDATE_FAILED"
-	ErrGitHubAPI        ErrorCode = "GITHUB_API_ERROR"
-	
+	ErrUpdateFailed ErrorCode = "UPDATE_FAILED"
+	ErrGitHubAPI    ErrorCode = "GITHUB_API_ERROR"
+
 	// External errors
-	ErrFetchFailed      ErrorCode = "FETCH_FAILED"
-	ErrURLInvalid       ErrorCode = "URL_INVALID"
-	ErrContentTooLarge  ErrorCode = "CONTENT_TOO_LARGE"
-	
+	ErrFetchFailed     ErrorCode = "FETCH_FAILED"
+	ErrURLInvalid      ErrorCode = "URL_INVALID"
+	ErrContentTooLarge ErrorCode = "CONTENT_TOO_LARGE"
+
 	// Generic errors
-	ErrInvalidInput     ErrorCode = "INVALID_INPUT"
-	ErrInternal         ErrorCode = "INTERNAL_ERROR"
+	ErrInvalidInput ErrorCode = "INVALID_INPUT"
+	ErrInternal     ErrorCode = "INTERNAL_ERROR"
 )
 
 // MCPError represents a structured error for MCP tools
@@ -46,7 +46,7 @@ func (e *MCPError) Error() string {
 	var parts []string
 	parts = append(parts, fmt.Sprintf("[%s]", e.Code))
 	parts = append(parts, e.Message)
-	
+
 	if len(e.Details) > 0 {
 		var details []string
 		for k, v := range e.Details {
@@ -54,11 +54,11 @@ func (e *MCPError) Error() string {
 		}
 		parts = append(parts, fmt.Sprintf("(%s)", strings.Join(details, ", ")))
 	}
-	
+
 	if e.Cause != nil {
 		parts = append(parts, fmt.Sprintf("- %v", e.Cause))
 	}
-	
+
 	return strings.Join(parts, " ")
 }
 
