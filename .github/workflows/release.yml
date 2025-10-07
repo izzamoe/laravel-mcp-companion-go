@@ -9,10 +9,34 @@ permissions:
   contents: write
 
 jobs:
+  # Job untuk setup dan cache dependencies
+  setup:
+    name: Setup Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.0'
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Download Dependencies
+        run: go mod download
+
+      - name: Verify Dependencies
+        run: go mod verify
+
+  # Job untuk build paralel multi-arch
   build:
     name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+    needs: setup
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - goos: linux
@@ -34,21 +58,49 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24.0'
+          cache: true
+          cache-dependency-path: go.sum
 
-      - name: Build
+      - name: Build Binary
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
         run: |
+          OUTPUT="laravel-mcp-companion-go-$GOOS-$GOARCH"
           if [ "$GOOS" = "windows" ]; then
-            go build -v -o laravel-mcp-companion-go-$GOOS-$GOARCH.exe cmd/server/main.go
-          else
-            go build -v -o laravel-mcp-companion-go-$GOOS-$GOARCH cmd/server/main.go
+            OUTPUT="${OUTPUT}.exe"
           fi
+          
+          go build -v \
+            -ldflags="-s -w -X main.version=${{ github.ref_name }}" \
+            -o "$OUTPUT" \
+            cmd/server/main.go
 
-      - name: Upload to Release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: laravel-mcp-companion-go-*
+          retention-days: 1
+
+  # Job untuk create release dengan semua binaries
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: binaries
+          pattern: binary-*
+          merge-multiple: true
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: laravel-mcp-companion-go-*
+          files: binaries/*
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
