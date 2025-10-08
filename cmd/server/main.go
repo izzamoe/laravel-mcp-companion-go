@@ -50,10 +50,15 @@ func main() {
 	// Initialize updater and scraper
 	upd := updater.NewGitHubUpdater(*docsPath)
 	scraper := external.NewWebScraper()
-	logging.Info("Initialized updater and web scraper")
+
+	// Initialize external manager with cache path
+	externalCachePath := "./cache/external"
+	externalManager := external.NewExternalManager(externalCachePath)
+	logging.Info("Initialized updater, web scraper, and external manager")
 
 	// Create server
 	srv := server.NewServer(docManager)
+	srv.SetExternalManager(externalManager)
 	logging.Info("Created MCP server")
 
 	// Register documentation tools
@@ -71,8 +76,8 @@ func main() {
 	srv.RegisterExternalTools(upd, scraper)
 	logging.Info("Registered update and info tools (2 tools)")
 
-	// Register external service tools
-	srv.RegisterExternalServiceTools(scraper)
+	// Register external service tools with the external manager
+	srv.RegisterExternalServiceTools(externalManager)
 	logging.Info("Registered external service tools (4 tools)")
 
 	// Start the server (blocking call)

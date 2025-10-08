@@ -139,7 +139,7 @@ func removeTagsWithContent(text, startTag, endTag string) string {
 func (w *WebScraper) FormatResource(url, content string) string {
 	var result strings.Builder
 
-	result.WriteString(fmt.Sprintf("# External Resource\n\n"))
+	result.WriteString("# External Resource\n\n")
 	result.WriteString(fmt.Sprintf("**URL:** %s\n\n", url))
 	result.WriteString(fmt.Sprintf("**Content Length:** %d bytes\n\n", len(content)))
 	result.WriteString("---\n\n")

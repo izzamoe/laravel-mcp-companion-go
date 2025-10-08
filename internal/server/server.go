@@ -2,13 +2,15 @@ package server
 
 import (
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/docs"
+	"github.com/izzamoe/laravel-mcp-companion-go/internal/external"
 	"github.com/mark3labs/mcp-go/server"
 )
 
 // Server wraps MCP server with documentation manager
 type Server struct {
-	mcp        *server.MCPServer
-	docManager *docs.Manager
+	mcp             *server.MCPServer
+	docManager      *docs.Manager
+	externalManager *external.ExternalManager
 }
 
 // NewServer creates a new server instance
@@ -24,6 +26,11 @@ func NewServer(docManager *docs.Manager) *Server {
 		mcp:        mcpServer,
 		docManager: docManager,
 	}
+}
+
+// SetExternalManager sets the external manager for the server
+func (s *Server) SetExternalManager(em *external.ExternalManager) {
+	s.externalManager = em
 }
 
 // GetMCPServer returns the underlying MCP server for ServeStdio

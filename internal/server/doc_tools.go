@@ -91,11 +91,19 @@ func (s *Server) RegisterDocTools() error {
 		}
 
 		version := mcp.ParseString(request, "version", "")
-		// includeExternal := mcp.ParseBoolean(request, "include_external", true) // TODO: implement external search
+		includeExternal := mcp.ParseBoolean(request, "include_external", true)
 
 		results, err := s.docManager.SearchDocs(query, version)
 		if err != nil {
 			return mcp.NewToolResultError(fmt.Sprintf("Search failed: %v", err)), nil
+		}
+
+		// If include_external is true and external manager is available, search external services too
+		if includeExternal && s.externalManager != nil {
+			externalResults, err := s.externalManager.SearchServices(query, nil)
+			if err == nil && externalResults != "" {
+				results += "\n\n---\n\n" + externalResults
+			}
 		}
 
 		return mcp.NewToolResultText(results), nil
@@ -129,11 +137,19 @@ func (s *Server) RegisterDocTools() error {
 
 		version := mcp.ParseString(request, "version", "")
 		contextLength := int(mcp.ParseFloat64(request, "context_length", 200))
-		// includeExternal := mcp.ParseBoolean(request, "include_external", true) // TODO: implement external search
+		includeExternal := mcp.ParseBoolean(request, "include_external", true)
 
 		result, err := s.docManager.SearchWithContext(query, version, contextLength)
 		if err != nil {
 			return mcp.NewToolResultError(fmt.Sprintf("Search failed: %v", err)), nil
+		}
+
+		// If include_external is true and external manager is available, search external services with context
+		if includeExternal && s.externalManager != nil {
+			externalResults, err := s.externalManager.SearchServicesWithContext(query, nil, contextLength)
+			if err == nil && externalResults != "" {
+				result += "\n\n---\n\n" + externalResults
+			}
 		}
 
 		return mcp.NewToolResultText(result), nil

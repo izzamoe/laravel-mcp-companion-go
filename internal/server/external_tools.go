@@ -63,7 +63,7 @@ func (s *Server) RegisterExternalTools(upd *updater.GitHubUpdater, scraper *exte
 }
 
 // RegisterExternalServiceTools registers external Laravel service tools (Tools 13-16)
-func (s *Server) RegisterExternalServiceTools(scraper *external.WebScraper) {
+func (s *Server) RegisterExternalServiceTools(externalManager *external.ExternalManager) {
 	// Tool 13: update_external_laravel_docs
 	updateExternalTool := mcp.NewTool("update_external_laravel_docs",
 		mcp.WithDescription("Updates documentation for external Laravel services like Forge, Vapor, Envoyer, and Nova.\n\nWhen to use:\n- Getting latest external service docs\n- Setting up deployment workflows\n- Learning about Laravel services\n- Checking service features"),
@@ -81,21 +81,21 @@ func (s *Server) RegisterExternalServiceTools(scraper *external.WebScraper) {
 		// Parse services array
 		servicesMap := mcp.ParseStringMap(request, "services", nil)
 		var services []string
-		if servicesMap != nil {
-			for _, v := range servicesMap {
-				if str, ok := v.(string); ok {
-					services = append(services, str)
-				}
+		for _, v := range servicesMap {
+			if str, ok := v.(string); ok {
+				services = append(services, str)
 			}
 		}
 
 		force := mcp.ParseBoolean(request, "force", false)
 
-		// TODO: Implement external manager
-		_ = services
-		_ = force
+		// Update external services
+		result, err := externalManager.UpdateServices(services, force)
+		if err != nil {
+			return mcp.NewToolResultError(fmt.Sprintf("Update failed: %v", err)), nil
+		}
 
-		return mcp.NewToolResultText("External service documentation update is not yet implemented. Available services: forge, vapor, envoyer, nova"), nil
+		return mcp.NewToolResultText(result), nil
 	})
 
 	// Tool 14: list_laravel_services
@@ -147,18 +147,19 @@ Administration panel for Laravel applications.
 		// Parse services
 		servicesMap := mcp.ParseStringMap(request, "services", nil)
 		var services []string
-		if servicesMap != nil {
-			for _, v := range servicesMap {
-				if str, ok := v.(string); ok {
-					services = append(services, str)
-				}
+		for _, v := range servicesMap {
+			if str, ok := v.(string); ok {
+				services = append(services, str)
 			}
 		}
 
-		// TODO: Implement external search
-		_ = services
+		// Search external services
+		result, err := externalManager.SearchServices(query, services)
+		if err != nil {
+			return mcp.NewToolResultError(fmt.Sprintf("Search failed: %v", err)), nil
+		}
 
-		return mcp.NewToolResultText(fmt.Sprintf("External service search for '%s' is not yet implemented. Try using the main documentation search or visit the service websites directly.", query)), nil
+		return mcp.NewToolResultText(result), nil
 	})
 
 	// Tool 16: get_laravel_service_info
