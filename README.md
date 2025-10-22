@@ -1,386 +1,49 @@
 # Laravel MCP Companion (Go Implementation)
 
-A Model Context Protocol (MCP) server providing comprehensive Laravel documentation and package recommendations for AI assistants. This is a complete Go implementation using the official `github.com/modelcontextprotocol/go-sdk` library.
-
-## 🚀 Features
-
-### 16 MCP Tools Available
-
-#### Documentation Tools (6 tools)
-1. **`list_laravel_docs`** - List available documentation files
-2. **`read_laravel_doc_content`** - Read complete documentation content
-3. **`search_laravel_docs`** - Search across documentation with match counts
-4. **`search_laravel_docs_with_context`** - Advanced search with surrounding context
-5. **`get_doc_structure`** - Extract table of contents from documentation
-6. **`browse_docs_by_category`** - Discover docs by category (frontend, database, etc.)
-
-#### Package Tools (4 tools)
-7. **`get_laravel_package_recommendations`** - Get package recommendations by use case
-8. **`get_laravel_package_info`** - Detailed information about specific packages
-9. **`get_laravel_package_categories`** - List packages within a category
-10. **`get_features_for_laravel_package`** - Get common features and patterns
-
-#### Update & Info Tools (2 tools)
-11. **`update_laravel_docs`** - Update documentation from GitHub
-12. **`laravel_docs_info`** - Get metadata about documentation versions
-
-#### External Service Tools (4 tools)
-13. **`update_external_laravel_docs`** - Update external service documentation
-14. **`list_laravel_services`** - List available Laravel services (Forge, Vapor, etc.)
-15. **`search_external_laravel_docs`** - Search external service documentation
-16. **`get_laravel_service_info`** - Get detailed service information
-
-## 📦 Installation
-
-### Prerequisites
-- Go 1.24 or later
-- Git (for documentation updates)
-
-### Build from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/izzamoe/laravel-mcp-companion-go.git
-cd laravel-mcp-companion-go
-
-# Install dependencies
-go mod download
-
-# Build the server
-go build -o bin/server ./cmd/server
-
-# Run the server
-./bin/server --docs-path ./docs --version 12.x
-```
-
-## 🔧 Configuration
-
-### Command Line Flags
-
-- `--docs-path` - Path to documentation directory (default: `./docs`)
-- `--packages-path` - Path to packages catalog (default: `./configs/packages.json`)
-- `--version` - Default Laravel version (default: `12.x`)
-- `--log-level` - Logging level: debug, info, warn, error (default: `info`)
-
-### Claude Desktop Configuration
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "laravel-companion": {
-      "command": "/path/to/laravel-mcp-companion-go/bin/server",
-      "args": [
-        "--docs-path", "/path/to/laravel-mcp-companion-go/docs",
-        "--version", "12.x",
-        "--log-level", "info"
-      ]
-    }
-  }
-}
-```
-
-## 📚 Usage Examples
-
-### 1. List Available Documentation
-
-```
-Tool: list_laravel_docs
-Parameters:
-  version: "12.x"
-```
-
-### 2. Read Documentation Content
-
-```
-Tool: read_laravel_doc_content
-Parameters:
-  filename: "routing.md"
-  version: "12.x"
-```
-
-### 3. Search Documentation
-
-```
-Tool: search_laravel_docs
-Parameters:
-  query: "middleware"
-  version: "12.x"
-```
-
-### 4. Search with Context
-
-```
-Tool: search_laravel_docs_with_context
-Parameters:
-  query: "middleware"
-  context_length: 200
-```
-
-### 5. Get Package Recommendations
-
-```
-Tool: get_laravel_package_recommendations
-Parameters:
-  use_case: "implementing payment system"
-```
-
-### 6. Get Package Information
-
-```
-Tool: get_laravel_package_info
-Parameters:
-  package_name: "laravel/cashier"
-```
-
-### 7. Browse by Category
-
-```
-Tool: browse_docs_by_category
-Parameters:
-  category: "frontend"
-  version: "12.x"
-```
-
-## 🏗️ Architecture
-
-```
-laravel-mcp-companion-go/
-├── cmd/server/           # Main entry point
-│   └── main.go
-├── internal/
-│   ├── docs/            # Documentation management
-│   │   ├── manager.go   # Core doc operations
-│   │   └── cache.go     # Documentation caching
-│   ├── packages/        # Package catalog
-│   │   ├── catalog.go   # Package search & recommendations
-│   │   └── format.go    # Output formatting
-│   ├── server/          # MCP server & tools
-│   │   ├── server.go    # Server initialization
-│   │   ├── doc_tools.go # Documentation tools (6)
-│   │   ├── package_tools.go # Package tools (4)
-│   │   └── external_tools.go # External tools (6)
-│   ├── updater/         # GitHub documentation updater
-│   ├── external/        # External resource handling
-│   ├── logging/         # Logging utilities
-│   └── models/          # Data models
-├── docs/                # Documentation files
-│   └── 12.x/           # Laravel 12.x docs
-├── configs/             # Configuration files
-│   └── packages.json   # Package catalog
-└── bin/                # Built binaries
-    └── server
-```
-
-## 🔍 Implementation Details
-
-### MCP Library
-
-This implementation uses the official MCP Go SDK:
-- **Library:** `github.com/modelcontextprotocol/go-sdk` v1.0.0
-- **Transport:** stdio (Standard Input/Output)
-- **Protocol Version:** 2024-11-05
-
-### Tool Registration
-
-All tools are registered with:
-- ✅ Type-safe input structs with automatic schema generation
-- ✅ Automatic validation from struct tags (required/optional)
-- ✅ Type validation (string, number, boolean, array)
-- ✅ Default values for optional parameters
-- ✅ Comprehensive descriptions with "When to use" guidance
-- ✅ Error handling and response formatting
-
-### Documentation Manager
-
-Features:
-- File-based documentation storage
-- In-memory caching with TTL
-- Path safety validation (prevents directory traversal)
-- Version management (12.x, 11.x, etc.)
-- Search with context extraction
-- Structure parsing (TOC generation)
-- Category-based browsing
-
-### Package Catalog
-
-Features:
-- JSON-based package index
-- Use case matching with relevance scoring
-- Category organization
-- Popularity scoring
-- Maintenance status tracking
-- Alternative package suggestions
-
-## 🧪 Testing
-
-### Manual Testing
-
-```bash
-# Build the server
-go build -o bin/server ./cmd/server
-
-# Run test script
-./test_tools.sh
-
-# Or manually test with Claude Desktop
-```
-
-### Verify Tool Count
-
-The server should log on startup:
-```
-Registered documentation tools (6 tools)
-Registered package tools (4 tools)
-Registered update and info tools (2 tools)
-Registered external service tools (4 tools)
-Server ready with 16 total tools, starting event loop...
-```
-
-## 📝 Documentation
-
-### Project Documentation
-
-All development documentation is organized in the [`_docs/`](_docs/) folder:
-
-- **[TOOLS_VERIFICATION.md](_docs/TOOLS_VERIFICATION.md)** - Complete tool specifications and compliance checklist
-- **[MCP_GO_IMPLEMENTATION_COMPLETE.md](_docs/MCP_GO_IMPLEMENTATION_COMPLETE.md)** - Detailed implementation guide
-- **[FINAL_VERIFICATION_REPORT.md](_docs/FINAL_VERIFICATION_REPORT.md)** - Final verification report
-- **[IMPLEMENTATION_SUMMARY.md](_docs/IMPLEMENTATION_SUMMARY.md)** - Implementation summary
-- **[TODO_PROGRESS_DASHBOARD.md](_docs/TODO_PROGRESS_DASHBOARD.md)** - Development progress tracking
-
-### Laravel Documentation
-
-Laravel documentation files are stored in the `docs/` folder, organized by version (e.g., `docs/12.x/`, `docs/11.x/`).
-
-## 🚀 Development
-
-### Building
-
-```bash
-go build -o bin/server ./cmd/server
-```
-
-### Running
-
-```bash
-./bin/server --docs-path ./docs --version 12.x --log-level debug
-```
-
-### Logging
-
-Logs are output to stderr (stdout is reserved for MCP protocol):
-- **Debug:** Detailed operation logs
-- **Info:** General operation logs (default)
-- **Warn:** Warning messages
-- **Error:** Error messages
-
-## 🤝 Contributing
-
-Contributions are welcome! Please ensure:
-- All 16 tools remain functional
-- Parameter schemas match the specification
-- Response formats are Markdown-compatible
-- Tests pass
-- Code follows Go conventions
-
-## 📄 License
-
-MIT License
-
-## 🙏 Acknowledgments
-
-- Laravel Framework team for excellent documentation
-- Anthropic for the MCP protocol specification
-- Model Context Protocol team for the official Go SDK
-
-## 📞 Support
-
-For issues and questions:
-- Create an issue on GitHub
-- Check the Laravel documentation in `docs/`
-- Review the implementation guide in [`_docs/MCP_GO_IMPLEMENTATION_COMPLETE.md`](_docs/MCP_GO_IMPLEMENTATION_COMPLETE.md)
-- See development documentation in [`_docs/`](_docs/)
-
----
-
-**Status:** ✅ All 16 tools implemented and tested  
-**Version:** 1.0.0  
-**Go Version:** 1.24.0  
-**Binary Size:** 9.7MB
-
-> 🚀 MCP Server for Laravel documentation and package recommendations
-
-[![Build Status](https://github.com/izzamoe/laravel-mcp-companion-go/workflows/Test/badge.svg)](https://github.com/izzamoe/laravel-mcp-companion-go/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/izzamoe/laravel-mcp-companion-go)](https://goreportcard.com/report/github.com/izzamoe/laravel-mcp-companion-go)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+A high-performance MCP server providing comprehensive Laravel documentation and intelligent package recommendations for AI assistants. Built with Go using the official MCP SDK.
 
 ## ✨ Features
 
-- 📚 **Complete Laravel Documentation** - Versions 6.x through 12.x
-- 🔍 **Smart Package Recommendations** - AI-powered suggestions based on your use case
-- 🌐 **External Services** - Forge, Vapor, Nova, Envoyer documentation
-- ⚡ **High Performance** - Built with Go for speed and efficiency
-- 💾 **Intelligent Caching** - Fast responses with automatic cache management
-- 🎯 **16 MCP Tools** - Comprehensive API for Laravel development
-- 🔗 **Resource URIs** - Direct access via `laravel://` and `laravel-external://`
+- 📚 **16 MCP Tools** - Complete Laravel development toolkit
+- 🔍 **Smart Documentation** - Search across Laravel 6.x-12.x docs
+- 📦 **Package Intelligence** - AI-powered recommendations by use case
+- 🌐 **External Services** - Forge, Vapor, Nova, Envoyer integration
+- ⚡ **Go Performance** - Fast, efficient, and lightweight
+- 💾 **Intelligent Caching** - Optimized response times
 
-## 📋 Prerequisites
+### MCP Tools Overview
+- **Documentation** (6): Browse, search, and extract Laravel docs
+- **Packages** (4): Recommendations, info, and category browsing
+- **Updates** (2): Documentation and metadata management
+- **External** (4): Laravel ecosystem service documentation
 
-- Go 1.24 or higher
-- Claude Desktop app or VSCode with MCP support
-- macOS, Linux, or Windows
+## 🚀 Quick Start
 
-## 🚀 Installation
+### Prerequisites
+- Go 1.24+
+- Claude Desktop or VSCode with MCP support
 
-### Download Pre-built Binaries
-
-Download the latest release from [GitHub Releases](https://github.com/izzamoe/laravel-mcp-companion-go/releases) for your platform:
-
-- **Linux (AMD64/ARM64)**: `laravel-mcp-companion-go-linux-{arch}`
-- **macOS (AMD64/ARM64)**: `laravel-mcp-companion-go-darwin-{arch}`
-- **Windows (AMD64)**: `laravel-mcp-companion-go-windows-amd64.exe`
-
-Make the binary executable and move to your preferred location:
+### Install & Run
 
 ```bash
-# For Linux/macOS
-chmod +x laravel-mcp-companion-go-*
-sudo mv laravel-mcp-companion-go-* /usr/local/bin/laravel-mcp-companion-go
-
-# For Windows, just move the .exe file to your desired location
-```
-
-### Build from Source
-
-```bash
-# Clone the repository
+# Clone and build
 git clone https://github.com/izzamoe/laravel-mcp-companion-go.git
 cd laravel-mcp-companion-go
+go build -o bin/server ./cmd/server
 
-# Build
-go build -o laravel-mcp-companion-go cmd/server/main.go
-
-# Move to your preferred location
-mv laravel-mcp-companion-go /usr/local/bin/
+# Run server
+./bin/server --docs-path ./docs --version 12.x
 ```
 
-## ⚙️ Configuration
+### Claude Desktop Config
 
-### Claude Desktop Setup
-
-Add to your Claude Desktop config:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Linux**: `~/.config/Claude/claude_desktop_config.json`
-
+Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
     "laravel-companion": {
-      "command": "/usr/local/bin/laravel-mcp-companion-go",
-      "args": []
+      "command": "/path/to/bin/server",
+      "args": ["--docs-path", "/path/to/docs", "--version", "12.x"]
     }
   }
 }
@@ -388,96 +51,106 @@ Add to your Claude Desktop config:
 
 ### VSCode Setup
 
-1. **Download or build the binary** (see Installation section above).
+1. Install MCP extension
+2. Create `.vscode/mcp.json`:
+```json
+{
+  "servers": {
+    "laravel-companion": {
+      "type": "stdio",
+      "command": "/path/to/bin/server",
+      "args": ["--docs-path", "/path/to/docs"]
+    }
+  }
+}
+```
 
-2. **Create MCP configuration**:
-   - Create a `.vscode` folder in your workspace root (if it doesn't exist)
-   - Create a file named `mcp.json` inside `.vscode/`
-   - Add the following content to `mcp.json`:
-
-   ```json
-   {
-     "servers": {
-       "laravel_docs": {
-         "type": "stdio",
-         "command": "/absolute/path/to/laravel-mcp-companion-go",
-         "args": []
-       }
-     },
-     "inputs": []
-   }
-   ```
-
-   **Note**: Replace `/absolute/path/to/laravel-mcp-companion-go` with the actual absolute path to your binary (e.g., `/usr/local/bin/laravel-mcp-companion-go`).
-
-3. **Restart VSCode** or reload the window to apply the MCP configuration.
-
-4. **Verify setup**: The MCP server should now be available in VSCode's MCP-enabled extensions.
-
-## 📖 Usage
+## 📖 Usage Examples
 
 ### In Claude Desktop
+Simply ask Claude about Laravel development:
 
-Simply ask Claude about Laravel! Examples:
+- *"Show me Laravel 12.x routing documentation"*
+- *"Recommend packages for payment processing"*
+- *"Search for middleware examples in Laravel"*
+- *"What are Laravel Sanctum features?"*
+- *"How to implement Laravel Cashier?"*
 
-- **Documentation**: "Show me Laravel 11.x routing documentation"
-- **Packages**: "Recommend packages for implementing payment processing"
-- **Features**: "What features does Laravel Sanctum provide?"
-- **Search**: "Search for middleware in Laravel 11.x"
+### In VSCode
+Once configured, ask your AI assistant:
 
-## 📋 Implementation Status
+- *"Browse Laravel documentation categories"*
+- *"Find authentication packages"*
+- *"Show Laravel Forge deployment features"*
+- *"Search for database migration docs"*
+- *"Get package info for laravel/socialite"*
 
-**Current Status:** 16/16 tools fully implemented (100% complete) ✅
+### Tool Examples
 
-All features are now production-ready:
-- ✅ **Tool 13:** `update_external_laravel_docs` - Fully implemented with web scraping
-- ✅ **Tool 15:** `search_external_laravel_docs` - Fully implemented with search functionality
-- ✅ **Tool 3 & 4:** `include_external` parameters - Fully functional
+**Documentation Search:**
+```
+Search: "middleware authentication"
+Result: Links to relevant docs with context
+```
 
-### Recent Updates (October 2025):
-- ✅ Implemented external service documentation manager
-- ✅ Added web scraping for Forge, Vapor, Envoyer, and Nova
-- ✅ Implemented caching mechanism for external docs (24h validity)
-- ✅ Integrated external search with main documentation search
-- ✅ All TODO comments removed from codebase
+**Package Recommendations:**
+```
+Use case: "implementing user notifications"
+Result: Recommended packages with descriptions
+```
 
-For historical context about previously unimplemented features:
-- **📊 Implementation History:** See [`_docs/TODO_PROGRESS_DASHBOARD.md`](_docs/TODO_PROGRESS_DASHBOARD.md)
-- **📋 Completed Tasks:** See [`_docs/TODO_IMPLEMENTATION_CHECKLIST.md`](_docs/TODO_IMPLEMENTATION_CHECKLIST.md)
+**External Services:**
+```
+Service: "Laravel Forge"
+Result: Features, pricing, and documentation
+```
 
-**Status:** All core and external service features are production-ready and fully functional! 🎉
+## 🏗️ Architecture
 
-## 🏗️ Development
+```
+├── cmd/server/          # Main entry point
+├── internal/
+│   ├── docs/           # Documentation management
+│   ├── packages/       # Package catalog
+│   ├── server/         # MCP tools (16 total)
+│   ├── external/       # Laravel ecosystem services
+│   └── models/         # Data structures
+├── docs/               # Laravel documentation
+└── configs/            # Package catalog
+```
 
-### Run Tests
+## 🧪 Development
 
 ```bash
-# All tests
+# Run tests
 go test ./...
 
-# With coverage
-go test -cover ./...
+# Build
+go build -o bin/server ./cmd/server
 
-# Verbose output
-go test -v ./...
+# Debug mode
+./bin/server --log-level debug
 ```
 
-### Run with Debug Logging
+## 📋 Command Line Options
 
-```bash
-LOG_LEVEL=debug ./laravel-mcp-companion-go
-```
+- `--docs-path` - Documentation directory (default: `./docs`)
+- `--packages-path` - Package catalog (default: `./configs/packages.json`)
+- `--version` - Default Laravel version (default: `12.x`)
+- `--log-level` - Logging: debug, info, warn, error (default: `info`)
 
-## 📝 License
+## 📄 License
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🙏 Acknowledgments
 
-- [Laravel Framework](https://laravel.com/) - The PHP framework
-- [MCP Protocol](https://modelcontextprotocol.io/) - Model Context Protocol
-- [modelcontextprotocol/go-sdk](https://github.com/modelcontextprotocol/go-sdk) - Official Go MCP SDK
+- Laravel Framework team
+- Anthropic MCP Protocol
+- Model Context Protocol Go SDK
 
 ---
 
-**Made with ❤️ for the Laravel community**
+**Status:** ✅ 16/16 tools implemented | **Version:** 1.0.0 | **Go:** 1.24+
+
+*Made with ❤️ for the Laravel community*
