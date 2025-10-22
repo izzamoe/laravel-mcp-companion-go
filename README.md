@@ -1,6 +1,6 @@
 # Laravel MCP Companion (Go Implementation)
 
-A Model Context Protocol (MCP) server providing comprehensive Laravel documentation and package recommendations for AI assistants. This is a complete Go implementation using the official `github.com/mark3labs/mcp-go` library.
+A Model Context Protocol (MCP) server providing comprehensive Laravel documentation and package recommendations for AI assistants. This is a complete Go implementation using the official `github.com/modelcontextprotocol/go-sdk` library.
 
 ## 🚀 Features
 
@@ -177,15 +177,16 @@ laravel-mcp-companion-go/
 
 ### MCP Library
 
-This implementation uses the official MCP Go library:
-- **Library:** `github.com/mark3labs/mcp-go` v0.41.1
+This implementation uses the official MCP Go SDK:
+- **Library:** `github.com/modelcontextprotocol/go-sdk` v1.0.0
 - **Transport:** stdio (Standard Input/Output)
 - **Protocol Version:** 2024-11-05
 
 ### Tool Registration
 
 All tools are registered with:
-- ✅ Proper parameter schemas (required/optional)
+- ✅ Type-safe input structs with automatic schema generation
+- ✅ Automatic validation from struct tags (required/optional)
 - ✅ Type validation (string, number, boolean, array)
 - ✅ Default values for optional parameters
 - ✅ Comprehensive descriptions with "When to use" guidance
@@ -292,7 +293,7 @@ MIT License
 
 - Laravel Framework team for excellent documentation
 - Anthropic for the MCP protocol specification
-- mark3labs for the mcp-go library
+- Model Context Protocol team for the official Go SDK
 
 ## 📞 Support
 
@@ -475,7 +476,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 
 - [Laravel Framework](https://laravel.com/) - The PHP framework
 - [MCP Protocol](https://modelcontextprotocol.io/) - Model Context Protocol
-- [mark3labs/mcp-go](https://github.com/mark3labs/mcp-go) - Go MCP library
+- [modelcontextprotocol/go-sdk](https://github.com/modelcontextprotocol/go-sdk) - Official Go MCP SDK
 
 ---
 

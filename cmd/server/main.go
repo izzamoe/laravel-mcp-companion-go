@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/packages"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/server"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/updater"
-	mcpserver "github.com/mark3labs/mcp-go/server"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 func main() {
@@ -83,8 +84,8 @@ func main() {
 	// Start the server (blocking call)
 	logging.Info("Server ready with 16 total tools, starting event loop...")
 
-	// Start the MCP server over stdio
-	if err := mcpserver.ServeStdio(srv.GetMCPServer()); err != nil {
+	// Start the MCP server over stdio using new SDK
+	if err := srv.GetMCPServer().Run(context.Background(), &mcp.StdioTransport{}); err != nil {
 		logging.Error("Server error: %v", err)
 		os.Exit(1)
 	}

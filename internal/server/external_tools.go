@@ -6,104 +6,116 @@ import (
 
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/external"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/updater"
-	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
+
+// Tool input types for external tools
+type UpdateDocsInput struct {
+	VersionParam string `json:"version_param,omitempty" jsonschema:"Laravel version branch (e.g. '12.x')"`
+	Force        *bool  `json:"force,omitempty" jsonschema:"Force update even if already up to date"`
+}
+
+type DocsInfoInput struct {
+	Version string `json:"version,omitempty" jsonschema:"Specific Laravel version to get info for (e.g. '12.x'). If not provided shows all versions"`
+}
+
+type UpdateExternalInput struct {
+	Services []string `json:"services,omitempty" jsonschema:"List of services to update (forge vapor envoyer nova). If None updates all"`
+	Force    *bool    `json:"force,omitempty" jsonschema:"Force update even if cache is valid"`
+}
+
+type SearchExternalInput struct {
+	Query    string   `json:"query" jsonschema:"required,Search term to look for"`
+	Services []string `json:"services,omitempty" jsonschema:"List of services to search. If None searches all cached services"`
+}
+
+type ServiceInfoInput struct {
+	Service string `json:"service" jsonschema:"required,Service name (forge vapor envoyer nova)"`
+}
 
 // RegisterExternalTools registers update and external resource tools
 func (s *Server) RegisterExternalTools(upd *updater.GitHubUpdater, scraper *external.WebScraper) {
 	// Tool 11: update_laravel_docs
-	updateDocsTool := mcp.NewTool("update_laravel_docs",
-		mcp.WithDescription("Updates documentation from the official Laravel GitHub repository. Ensures access to the latest documentation changes.\n\nWhen to use:\n- Getting the latest documentation\n- Ensuring documentation is up to date\n- After Laravel version release\n- When documentation seems outdated"),
-		mcp.WithString("version_param",
-			mcp.Description("Laravel version branch (e.g., '12.x')"),
-		),
-		mcp.WithBoolean("force",
-			mcp.DefaultBool(false),
-			mcp.Description("Force update even if already up to date"),
-		),
-	)
-
-	s.mcp.AddTool(updateDocsTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		version := mcp.ParseString(request, "version_param", "")
-		force := mcp.ParseBoolean(request, "force", false)
-
+	mcp.AddTool(s.mcp, &mcp.Tool{
+		Name:        "update_laravel_docs",
+		Description: "Updates documentation from the official Laravel GitHub repository. Ensures access to the latest documentation changes.\n\nWhen to use:\n- Getting the latest documentation\n- Ensuring documentation is up to date\n- After Laravel version release\n- When documentation seems outdated",
+	}, func(ctx context.Context, request *mcp.CallToolRequest, input UpdateDocsInput) (*mcp.CallToolResult, EmptyOutput, error) {
+		version := input.VersionParam
 		if version == "" {
-			version = "12.x" // default
+			version = "12.x"
+		}
+
+		force := false
+		if input.Force != nil {
+			force = *input.Force
 		}
 
 		result, err := upd.UpdateDocs(version)
 		if err != nil {
+			errMsg := fmt.Sprintf("Update failed: %v", err)
 			if !force {
-				return mcp.NewToolResultError(fmt.Sprintf("Update failed: %v. Try with force=true to force update", err)), nil
+				errMsg += ". Try with force=true to force update"
 			}
-			return mcp.NewToolResultError(fmt.Sprintf("Update failed: %v", err)), nil
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{&mcp.TextContent{Text: errMsg}},
+				IsError: true,
+			}, EmptyOutput{}, nil
 		}
 
-		return mcp.NewToolResultText(result), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: result}},
+		}, EmptyOutput{}, nil
 	})
 
 	// Tool 12: laravel_docs_info
-	docsInfoTool := mcp.NewTool("laravel_docs_info",
-		mcp.WithDescription("Provides metadata about documentation versions, including last update times and commit information.\n\nWhen to use:\n- Checking documentation freshness\n- Verifying which version is available\n- Getting documentation statistics\n- Planning documentation updates"),
-		mcp.WithString("version",
-			mcp.Description("Specific Laravel version to get info for (e.g., '12.x'). If not provided, shows all versions"),
-		),
-	)
-
-	s.mcp.AddTool(docsInfoTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		version := mcp.ParseString(request, "version", "")
-
-		info, err := s.docManager.GetInfo(version)
+	mcp.AddTool(s.mcp, &mcp.Tool{
+		Name:        "laravel_docs_info",
+		Description: "Provides metadata about documentation versions, including last update times and commit information.\n\nWhen to use:\n- Checking documentation freshness\n- Verifying which version is available\n- Getting documentation statistics\n- Planning documentation updates",
+	}, func(ctx context.Context, request *mcp.CallToolRequest, input DocsInfoInput) (*mcp.CallToolResult, EmptyOutput, error) {
+		info, err := s.docManager.GetInfo(input.Version)
 		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("Failed to get info: %v", err)), nil
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Failed to get info: %v", err)}},
+				IsError: true,
+			}, EmptyOutput{}, nil
 		}
 
-		return mcp.NewToolResultText(info), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: info}},
+		}, EmptyOutput{}, nil
 	})
 }
 
 // RegisterExternalServiceTools registers external Laravel service tools (Tools 13-16)
 func (s *Server) RegisterExternalServiceTools(externalManager *external.ExternalManager) {
 	// Tool 13: update_external_laravel_docs
-	updateExternalTool := mcp.NewTool("update_external_laravel_docs",
-		mcp.WithDescription("Updates documentation for external Laravel services like Forge, Vapor, Envoyer, and Nova.\n\nWhen to use:\n- Getting latest external service docs\n- Setting up deployment workflows\n- Learning about Laravel services\n- Checking service features"),
-		mcp.WithArray("services",
-			mcp.Description("List of services to update (forge, vapor, envoyer, nova). If None, updates all"),
-			mcp.WithStringItems(),
-		),
-		mcp.WithBoolean("force",
-			mcp.DefaultBool(false),
-			mcp.Description("Force update even if cache is valid"),
-		),
-	)
-
-	s.mcp.AddTool(updateExternalTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		// Parse services array
-		servicesMap := mcp.ParseStringMap(request, "services", nil)
-		var services []string
-		for _, v := range servicesMap {
-			if str, ok := v.(string); ok {
-				services = append(services, str)
-			}
+	mcp.AddTool(s.mcp, &mcp.Tool{
+		Name:        "update_external_laravel_docs",
+		Description: "Updates documentation for external Laravel services like Forge, Vapor, Envoyer, and Nova.\n\nWhen to use:\n- Getting latest external service docs\n- Setting up deployment workflows\n- Learning about Laravel services\n- Checking service features",
+	}, func(ctx context.Context, request *mcp.CallToolRequest, input UpdateExternalInput) (*mcp.CallToolResult, EmptyOutput, error) {
+		force := false
+		if input.Force != nil {
+			force = *input.Force
 		}
 
-		force := mcp.ParseBoolean(request, "force", false)
-
-		// Update external services
-		result, err := externalManager.UpdateServices(services, force)
+		result, err := externalManager.UpdateServices(input.Services, force)
 		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("Update failed: %v", err)), nil
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Update failed: %v", err)}},
+				IsError: true,
+			}, EmptyOutput{}, nil
 		}
 
-		return mcp.NewToolResultText(result), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: result}},
+		}, EmptyOutput{}, nil
 	})
 
 	// Tool 14: list_laravel_services
-	listServicesTool := mcp.NewTool("list_laravel_services",
-		mcp.WithDescription("Lists all available Laravel services with external documentation support.\n\nWhen to use:\n- Discovering Laravel services\n- Planning service integration\n- Learning about Laravel ecosystem\n- Checking available services"),
-	)
-
-	s.mcp.AddTool(listServicesTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	mcp.AddTool(s.mcp, &mcp.Tool{
+		Name:        "list_laravel_services",
+		Description: "Lists all available Laravel services with external documentation support.\n\nWhen to use:\n- Discovering Laravel services\n- Planning service integration\n- Learning about Laravel ecosystem\n- Checking available services",
+	}, func(ctx context.Context, request *mcp.CallToolRequest, input struct{}) (*mcp.CallToolResult, EmptyOutput, error) {
 		result := `# Available Laravel Services
 
 ## 1. Laravel Forge
@@ -122,59 +134,46 @@ Zero-downtime deployment platform for PHP applications.
 Administration panel for Laravel applications.
 **URL:** https://nova.laravel.com`
 
-		return mcp.NewToolResultText(result), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: result}},
+		}, EmptyOutput{}, nil
 	})
 
 	// Tool 15: search_external_laravel_docs
-	searchExternalTool := mcp.NewTool("search_external_laravel_docs",
-		mcp.WithDescription("Searches through external Laravel service documentation.\n\nWhen to use:\n- Finding service-specific information\n- Learning about service features\n- Troubleshooting service issues\n- Comparing service capabilities"),
-		mcp.WithString("query",
-			mcp.Required(),
-			mcp.Description("Search term to look for"),
-		),
-		mcp.WithArray("services",
-			mcp.Description("List of services to search. If None, searches all cached services"),
-			mcp.WithStringItems(),
-		),
-	)
+	mcp.AddTool(s.mcp, &mcp.Tool{
+		Name:        "search_external_laravel_docs",
+		Description: "Searches through external Laravel service documentation.\n\nWhen to use:\n- Finding service-specific information\n- Learning about service features\n- Troubleshooting service issues\n- Comparing service capabilities",
+	}, func(ctx context.Context, request *mcp.CallToolRequest, input SearchExternalInput) (*mcp.CallToolResult, EmptyOutput, error) {
+		if input.Query == "" {
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{&mcp.TextContent{Text: "query is required"}},
+				IsError: true,
+			}, EmptyOutput{}, nil
+		}
 
-	s.mcp.AddTool(searchExternalTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		query, err := request.RequireString("query")
+		result, err := externalManager.SearchServices(input.Query, input.Services)
 		if err != nil {
-			return mcp.NewToolResultError("query is required"), nil
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Search failed: %v", err)}},
+				IsError: true,
+			}, EmptyOutput{}, nil
 		}
 
-		// Parse services
-		servicesMap := mcp.ParseStringMap(request, "services", nil)
-		var services []string
-		for _, v := range servicesMap {
-			if str, ok := v.(string); ok {
-				services = append(services, str)
-			}
-		}
-
-		// Search external services
-		result, err := externalManager.SearchServices(query, services)
-		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("Search failed: %v", err)), nil
-		}
-
-		return mcp.NewToolResultText(result), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: result}},
+		}, EmptyOutput{}, nil
 	})
 
 	// Tool 16: get_laravel_service_info
-	serviceInfoTool := mcp.NewTool("get_laravel_service_info",
-		mcp.WithDescription("Provides detailed information about a specific Laravel service.\n\nWhen to use:\n- Learning about a service\n- Understanding service pricing\n- Checking service requirements\n- Planning service adoption"),
-		mcp.WithString("service",
-			mcp.Required(),
-			mcp.Description("Service name (forge, vapor, envoyer, nova)"),
-		),
-	)
-
-	s.mcp.AddTool(serviceInfoTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		service, err := request.RequireString("service")
-		if err != nil {
-			return mcp.NewToolResultError("service is required"), nil
+	mcp.AddTool(s.mcp, &mcp.Tool{
+		Name:        "get_laravel_service_info",
+		Description: "Provides detailed information about a specific Laravel service.\n\nWhen to use:\n- Learning about a service\n- Understanding service pricing\n- Checking service requirements\n- Planning service adoption",
+	}, func(ctx context.Context, request *mcp.CallToolRequest, input ServiceInfoInput) (*mcp.CallToolResult, EmptyOutput, error) {
+		if input.Service == "" {
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{&mcp.TextContent{Text: "service is required"}},
+				IsError: true,
+			}, EmptyOutput{}, nil
 		}
 
 		serviceInfo := map[string]string{
@@ -251,11 +250,16 @@ Laravel Nova is a beautifully-designed administration panel for Laravel applicat
 **Documentation:** https://nova.laravel.com/docs`,
 		}
 
-		info, ok := serviceInfo[service]
+		info, ok := serviceInfo[input.Service]
 		if !ok {
-			return mcp.NewToolResultError(fmt.Sprintf("Service not found: %s. Available services: forge, vapor, envoyer, nova", service)), nil
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Service not found: %s. Available services: forge, vapor, envoyer, nova", input.Service)}},
+				IsError: true,
+			}, EmptyOutput{}, nil
 		}
 
-		return mcp.NewToolResultText(info), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: info}},
+		}, EmptyOutput{}, nil
 	})
 }
