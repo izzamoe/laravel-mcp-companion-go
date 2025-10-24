@@ -38,3 +38,4 @@ docs/*/
 
 # Binaries directory
 bin/
+server

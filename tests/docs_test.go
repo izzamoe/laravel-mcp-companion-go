@@ -59,7 +59,7 @@ func TestManager_ReadDoc(t *testing.T) {
 	manager := docs.NewManager(tmpDir, "12.x")
 
 	// Read doc
-	content, err := manager.ReadDoc("routing.md", "12.x")
+	content, err := manager.ReadDoc("12.x", "routing.md")
 	if err != nil {
 		t.Fatalf("ReadDoc failed: %v", err)
 	}

@@ -60,6 +60,7 @@ func main() {
 	// Create server
 	srv := server.NewServer(docManager)
 	srv.SetExternalManager(externalManager)
+	srv.SetUpdater(upd)
 	logging.Info("Created MCP server")
 
 	// Register documentation tools

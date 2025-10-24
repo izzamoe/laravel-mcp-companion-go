@@ -90,10 +90,39 @@ func (s *Server) RegisterDocTools() error {
 
 		content, err := s.docManager.ReadDoc(input.Version, input.Filename)
 		if err != nil {
-			return &mcp.CallToolResult{
-				Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Failed to read doc: %v", err)}},
-				IsError: true,
-			}, EmptyOutput{}, nil
+			// Check if it's a "document not found" error and we have an updater
+			if strings.Contains(err.Error(), "document not found") && s.updater != nil {
+				// Try to download the file from GitHub
+				version := input.Version
+				if version == "" {
+					version = "12.x"
+				}
+
+				downloadedContent, downloadErr := s.updater.DownloadSingleFile(version, input.Filename)
+				if downloadErr != nil {
+					return &mcp.CallToolResult{
+						Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Failed to read doc: %v. Also failed to download from GitHub: %v", err, downloadErr)}},
+						IsError: true,
+					}, EmptyOutput{}, nil
+				}
+
+				// Clear cache to ensure fresh read
+				s.docManager.ClearCache()
+
+				// Now try to read again
+				content, err = s.docManager.ReadDoc(input.Version, input.Filename)
+				if err != nil {
+					// If still error, return the downloaded content directly
+					return &mcp.CallToolResult{
+						Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Downloaded from GitHub but failed to read locally: %v\n\nContent:\n%s", err, downloadedContent)}},
+					}, EmptyOutput{}, nil
+				}
+			} else {
+				return &mcp.CallToolResult{
+					Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Failed to read doc: %v", err)}},
+					IsError: true,
+				}, EmptyOutput{}, nil
+			}
 		}
 
 		return &mcp.CallToolResult{

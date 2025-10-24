@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/docs"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/external"
+	"github.com/izzamoe/laravel-mcp-companion-go/internal/updater"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -11,6 +12,7 @@ type Server struct {
 	mcp             *mcp.Server
 	docManager      *docs.Manager
 	externalManager *external.ExternalManager
+	updater         *updater.GitHubUpdater
 }
 
 // NewServer creates a new server instance
@@ -36,6 +38,11 @@ func NewServer(docManager *docs.Manager) *Server {
 // SetExternalManager sets the external manager for the server
 func (s *Server) SetExternalManager(em *external.ExternalManager) {
 	s.externalManager = em
+}
+
+// SetUpdater sets the GitHub updater for the server
+func (s *Server) SetUpdater(u *updater.GitHubUpdater) {
+	s.updater = u
 }
 
 // GetMCPServer returns the underlying MCP server

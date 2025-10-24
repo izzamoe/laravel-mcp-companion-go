@@ -170,6 +170,41 @@ func (u *GitHubUpdater) downloadFile(version, filename, destPath string) error {
 	return nil
 }
 
+// DownloadSingleFile downloads a single file from GitHub and saves it locally
+func (u *GitHubUpdater) DownloadSingleFile(version, filename string) (string, error) {
+	// Verify version is supported
+	supported := false
+	for _, v := range models.SupportedVersions {
+		if v == version {
+			supported = true
+			break
+		}
+	}
+	if !supported {
+		return "", fmt.Errorf("unsupported version: %s", version)
+	}
+
+	// Create version directory if it doesn't exist
+	versionPath := filepath.Join(u.basePath, version)
+	if err := os.MkdirAll(versionPath, 0755); err != nil {
+		return "", fmt.Errorf("failed to create version directory: %w", err)
+	}
+
+	// Download the file
+	if err := u.downloadFile(version, filename, versionPath); err != nil {
+		return "", fmt.Errorf("failed to download %s: %w", filename, err)
+	}
+
+	// Read the content to return it
+	filePath := filepath.Join(versionPath, filename)
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read downloaded file: %w", err)
+	}
+
+	return string(content), nil
+}
+
 // doRequest performs HTTP request with GitHub API headers
 func (u *GitHubUpdater) doRequest(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
