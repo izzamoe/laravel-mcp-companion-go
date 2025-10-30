@@ -7,6 +7,7 @@ import (
 
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/docs"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/external"
+	"github.com/izzamoe/laravel-mcp-companion-go/internal/helpers"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/logging"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/packages"
 	"github.com/izzamoe/laravel-mcp-companion-go/internal/server"
@@ -15,8 +16,23 @@ import (
 )
 
 func main() {
+	// Get default paths from cache directory
+	defaultDocsPath, err := helpers.GetDefaultDocsPath()
+	if err != nil {
+		// Fallback to ./docs if cache dir cannot be determined
+		defaultDocsPath = "./docs"
+		logging.Warn("Could not determine cache directory, using ./docs as fallback: %v", err)
+	}
+
+	defaultExternalCachePath, err := helpers.GetDefaultExternalCachePath()
+	if err != nil {
+		// Fallback to ./cache/external if cache dir cannot be determined
+		defaultExternalCachePath = "./cache/external"
+		logging.Warn("Could not determine cache directory, using ./cache/external as fallback: %v", err)
+	}
+
 	// Parse command line flags
-	docsPath := flag.String("docs-path", "./docs", "Path to documentation directory")
+	docsPath := flag.String("docs-path", defaultDocsPath, "Path to documentation directory (default: OS-specific cache dir)")
 	packagesPath := flag.String("packages-path", "./configs/packages.json", "Path to packages catalog")
 	defaultVersion := flag.String("version", "12.x", "Default Laravel version")
 	logLevel := flag.String("log-level", "info", "Log level (debug, info, warn, error)")
@@ -36,6 +52,18 @@ func main() {
 
 	logging.Info("Starting Laravel MCP Companion...")
 
+	// Ensure docs directory exists
+	if err := helpers.EnsureDirExists(*docsPath); err != nil {
+		logging.Error("Failed to create docs directory: %v", err)
+		os.Exit(1)
+	}
+
+	// Ensure external cache directory exists
+	if err := helpers.EnsureDirExists(defaultExternalCachePath); err != nil {
+		logging.Error("Failed to create external cache directory: %v", err)
+		os.Exit(1)
+	}
+
 	// Initialize documentation manager
 	docManager := docs.NewManager(*docsPath, *defaultVersion)
 	logging.Info("Initialized documentation manager (path: %s, default: %s)", *docsPath, *defaultVersion)
@@ -52,9 +80,8 @@ func main() {
 	upd := updater.NewGitHubUpdater(*docsPath)
 	scraper := external.NewWebScraper()
 
-	// Initialize external manager with cache path
-	externalCachePath := "./cache/external"
-	externalManager := external.NewExternalManager(externalCachePath)
+	// Initialize external manager with cache path from helper
+	externalManager := external.NewExternalManager(defaultExternalCachePath)
 	logging.Info("Initialized updater, web scraper, and external manager")
 
 	// Create server
